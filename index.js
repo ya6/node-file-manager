@@ -1,34 +1,35 @@
 import { homedir } from "os";
-import { fileURLToPath } from "url";
+// import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
 import readline from "readline";
 import extractName from "./src/extractName.js";
-import getCurrentir from "./src/listDir.js";
 import listDir from "./src/listDir.js";
+import readFileAsStream from "./src/readFile.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 
 const args = process.argv.slice(2);
-
-console.log("user home-->", homedir());
-process.chdir(homedir());
 
 //write user_name
 const user_name = extractName(args);
 process.stdout.write(`Welcome to the File Manager, ${user_name}!\n`);
+
+//set homedir
+process.chdir(homedir());
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
-//read line
 printDefaultInterface();
+
+//read line
 rl.on("line", async (line) => {
   const line_arr = line.split(" ");
-  console.log("-->", line_arr);
+  // console.log("-->", line_arr);
   switch (line_arr[0]) {
     case ".exit":
       rl.output.write(`\nThank you for using File Manager, ${user_name}, goodbye!`);
@@ -44,7 +45,7 @@ rl.on("line", async (line) => {
       try {
         process.chdir(line_arr[1]);
       } catch (error) {
-        rl.output.write(`\nOperation failed`);
+        rl.output.write(`\nOperation failed\n`);
       }
       printDefaultInterface();
       break;
@@ -54,13 +55,23 @@ rl.on("line", async (line) => {
         const dir = await listDir(process.cwd());
         console.table(dir);
       } catch (error) {
-        rl.output.write(`\nOperation failed`);
+        rl.output.write(`\nOperation failed\n`);
+      }
+      printDefaultInterface();
+      break;
+
+    case "cat":
+      const file_path = join(process.cwd(), line_arr[1]);
+      try {
+        await readFileAsStream(file_path);
+      } catch (error) {
+        rl.output.write(`\nOperation failed\n`);
       }
       printDefaultInterface();
       break;
 
     default:
-      process.stdout.write(`\nInvalid input`);
+      process.stdout.write(`\nInvalid input\n`);
       printDefaultInterface();
       break;
   }
