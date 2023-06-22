@@ -1,11 +1,11 @@
 import { homedir } from "os";
-// import {  } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-// import { readdir } from "fs";
-import { promises as fsPromises } from "fs";
+
 import readline from "readline";
 import extractName from "./src/extractName.js";
+import getCurrentir from "./src/listDir.js";
+import listDir from "./src/listDir.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -51,23 +51,8 @@ rl.on("line", async (line) => {
 
     case "ls":
       try {
-        const res = await fsPromises.readdir(process.cwd(), { withFileTypes: true });
-        const trasform_res = res.map((el) => {
-          const obj = { name: el.name };
-
-          if (el.isDirectory()) {
-            obj.type = "Directory";
-          } else if (el.isFile()) {
-            obj.type = "File";
-          } else if (el.isSymbolicLink()) {
-            obj.type = "Link";
-          } else {
-            obj.type = "Unknown";
-          }
-          return obj;
-        });
-
-        console.table(trasform_res);
+        const dir = await listDir(process.cwd());
+        console.table(dir);
       } catch (error) {
         rl.output.write(`\nOperation failed`);
       }
