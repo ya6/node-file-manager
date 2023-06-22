@@ -1,11 +1,15 @@
 import { homedir } from "os";
 // import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { join } from "path";
 
 import readline from "readline";
 import extractName from "./src/extractName.js";
 import listDir from "./src/listDir.js";
 import readFileAsStream from "./src/readFile.js";
+import createFile from "./src/createFile.js";
+import renameFile from "./src/renameFile.js";
+import copyFile from "./src/copyFile.js";
+import removeFile from "./src/removeFile.js";
 
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = dirname(__filename);
@@ -61,9 +65,63 @@ rl.on("line", async (line) => {
       break;
 
     case "cat":
-      const file_path = join(process.cwd(), line_arr[1]);
+      const cat_file_path = join(process.cwd(), line_arr[1]);
       try {
-        await readFileAsStream(file_path);
+        await readFileAsStream(cat_file_path);
+      } catch (error) {
+        rl.output.write(`\nOperation failed\n`);
+      }
+      printDefaultInterface();
+      break;
+
+    case "add":
+      const add_file_path = join(process.cwd(), line_arr[1]);
+      try {
+        await createFile(add_file_path);
+      } catch (error) {
+        rl.output.write(`\nOperation failed\n`);
+      }
+      printDefaultInterface();
+      break;
+
+    case "rn":
+      const rn_src_file = join(process.cwd(), line_arr[1]);
+      const rn_dest_file = join(process.cwd(), line_arr[2]);
+      try {
+        await renameFile(rn_src_file, rn_dest_file);
+      } catch (error) {
+        rl.output.write(`\nOperation failed\n`);
+      }
+      printDefaultInterface();
+      break;
+
+    case "cp":
+      const cp_src_file = join(process.cwd(), line_arr[1]);
+      const cp_dest_file = join(process.cwd(), line_arr[2]);
+      try {
+        await copyFile(cp_src_file, cp_dest_file);
+      } catch (error) {
+        rl.output.write(`\nOperation failed\n`);
+      }
+      printDefaultInterface();
+      break;
+
+    case "rm":
+      const rm_src_file = join(process.cwd(), line_arr[1]);
+      try {
+        await removeFile(rm_src_file);
+      } catch (error) {
+        rl.output.write(`\nOperation failed\n`);
+      }
+      printDefaultInterface();
+      break;
+
+    case "mv":
+      const mv_src_file = join(process.cwd(), line_arr[1]);
+      const mv_dest_file = join(process.cwd(), line_arr[2]);
+      try {
+        await copyFile(mv_src_file, mv_dest_file);
+        await removeFile(mv_src_file);
       } catch (error) {
         rl.output.write(`\nOperation failed\n`);
       }
@@ -78,7 +136,7 @@ rl.on("line", async (line) => {
 });
 
 process.on("beforeExit", () => {
-  rl.output.write(`\nThank you for using File Manager, ${user_name}, goodbye!`);
+  rl.output.write(`\nThank you for using File Manager, ${user_name}, goodbye!\n`);
 });
 
 function printDefaultInterface() {
