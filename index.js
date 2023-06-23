@@ -11,6 +11,8 @@ import copyFile from "./src/copyFile.js";
 import removeFile from "./src/removeFile.js";
 import osInfo from "./src/osInfo.js";
 import hashFile from "./src/hashFile.js";
+import compressFile from "./src/compressFile.js";
+import decompressFile from "./src/decompressFile.js";
 
 const args = process.argv.slice(2);
 
@@ -139,13 +141,34 @@ rl.on("line", async (line) => {
       break;
 
     case "hash":
-      const hash_path = line_arr[1];
-      console.log(hash_path);
+      const hash_path = join(line_arr[1]);
       try {
         const hash = await hashFile(hash_path);
         console.log("\n", hash);
       } catch (error) {
+        rl.output.write(`\nOperation failed\n`);
+      }
+      printDefaultInterface();
+      break;
+
+    case "compress":
+      const compress_src_file = join(line_arr[1]);
+      const compress_dest_file = join(line_arr[2]);
+      try {
+        await compressFile(compress_src_file, compress_dest_file);
+      } catch (error) {
         console.error(error);
+        rl.output.write(`\nOperation failed\n`);
+      }
+      printDefaultInterface();
+      break;
+
+    case "decompress":
+      const decompress_src_file = join(line_arr[1]);
+      const decompress_dest_file = join(line_arr[2]);
+      try {
+        await decompressFile(decompress_src_file, decompress_dest_file);
+      } catch (error) {
         rl.output.write(`\nOperation failed\n`);
       }
       printDefaultInterface();
